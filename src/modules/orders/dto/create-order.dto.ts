@@ -1,0 +1,71 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { IsString, IsEmail, IsArray, IsOptional, IsEnum, IsNumber, Min, ValidateNested, IsUUID, IsBoolean } from 'class-validator';
+import { Type } from 'class-transformer';
+import { PaymentMethod, ShippingType } from '../../../entities/order.entity';
+
+export class CreateOrderItemDto {
+  @ApiProperty({ example: 'uuid-product', description: 'ID del producto' })
+  @IsUUID()
+  productId: string;
+
+  @ApiProperty({ example: 2, description: 'Cantidad' })
+  @IsNumber()
+  @Min(1)
+  quantity: number;
+
+  @ApiProperty({ example: true, description: 'Si el producto será bordado', required: false })
+  @IsOptional()
+  @IsBoolean()
+  isEmbroidered?: boolean;
+
+  @ApiProperty({ example: 'Juan Pérez', description: 'Nombre para bordar (si aplica)', required: false })
+  @IsOptional()
+  @IsString()
+  embroideryName?: string;
+}
+
+export class CreateOrderDto {
+  @ApiProperty({ example: 'Juan Pérez', description: 'Nombre del cliente' })
+  @IsString()
+  customerName: string;
+
+  @ApiProperty({ example: 'juan@example.com', description: 'Email del cliente' })
+  @IsEmail()
+  customerEmail: string;
+
+  @ApiProperty({ example: '+56912345678', description: 'Teléfono del cliente' })
+  @IsString()
+  customerPhone: string;
+
+  @ApiProperty({ example: 'Calle Falsa 123', description: 'Dirección de entrega', required: false })
+  @IsOptional()
+  @IsString()
+  shippingAddress?: string;
+
+  @ApiProperty({ example: 'chilexpress', enum: ShippingType, description: 'Tipo de envío', required: false })
+  @IsOptional()
+  @IsEnum(ShippingType)
+  shippingType?: ShippingType;
+
+  @ApiProperty({ type: [CreateOrderItemDto], description: 'Items de la orden' })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateOrderItemDto)
+  items: CreateOrderItemDto[];
+
+  @ApiProperty({ example: 'webpay', enum: PaymentMethod, required: false })
+  @IsOptional()
+  @IsEnum(PaymentMethod)
+  paymentMethod?: PaymentMethod;
+
+  @ApiProperty({ example: 0, description: 'Descuento aplicado', required: false })
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  discount?: number;
+
+  @ApiProperty({ example: 'Notas adicionales', required: false })
+  @IsOptional()
+  @IsString()
+  notes?: string;
+}
